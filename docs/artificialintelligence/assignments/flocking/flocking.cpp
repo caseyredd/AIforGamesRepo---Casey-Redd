@@ -102,7 +102,16 @@ struct Cohesion {
   Cohesion() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 com;
+    int neigh = 0;
+    for(int i = 0; i < boids.size(); i++) {
+      if (Vector2::Distance(boids.at(boidAgentIndex).position,  boids.at(i).position) < radius && boidAgentIndex != i) {
+        com += boids.at(i).position;
+        neigh++;
+      }
+    }
+    com = com / neigh;
+    return ((com - boids.at(boidAgentIndex).position)/radius);
   }
 };
 
@@ -113,7 +122,15 @@ struct Alignment {
   Alignment() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 velTotal;
+    int neigh;
+    for(int i = 0; i < boids.size(); i++) {
+      if (Vector2::Distance(boids.at(boidAgentIndex).position,  boids.at(i).position) < radius && boidAgentIndex != i) {
+        velTotal += boids.at(i).velocity;
+        neigh++;
+      }
+    }
+    Vector2 velAvg = velTotal/neigh;
   }
 };
 
@@ -125,7 +142,15 @@ struct Separation {
   Separation() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 totalForces;
+    for(int i = 0; i < boids.size(); i++) {
+      if (Vector2::Distance(boids.at(boidAgentIndex).position,  boids.at(i).position) < radius){
+        totalForces += (Vector2::normalized(boids.at(i).position-boids.at(boidAgentIndex).position)/ Vector2::getMagnitude(boids.at(i).position - boids.at(boidAgentIndex).position));
+      }
+    }
+    if(Vector2::getMagnitude(totalForces) > maxForce)
+      totalForces = Vector2::normalized(totalForces)*maxForce;
+    return totalForces;
   }
 };
 
